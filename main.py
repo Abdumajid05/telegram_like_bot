@@ -10,6 +10,9 @@ class TelegramBot:
         self.token = token
         self.api_url = f'https://api.telegram.org/bot{self.token}/'
         self.last_update_id = None
+        self.like = 0
+        self.dislike = 0
+        
 
     def get_updates(self):
         """
@@ -30,6 +33,16 @@ class TelegramBot:
         url = self.api_url + 'sendMessage'
         params = {'chat_id': chat_id, 'text': text}
         requests.get(url, params=params)
+    # def send_photo(self, chat_id, photo_url):
+    #     """
+    #     Sends a photo to the specified chat.
+    #     :param chat_id: ID of the chat where the photo will be sent.
+    #     :param photo_url: URL of the photo to send.
+    #     """
+        
+    #     url = self.api_url +'sendPhoto'
+    #     params = {'chat_id': chat_id, 'photo': photo_url}
+    #     requests.get(url, params=params)
 
     def handle_updates(self, updates):
         """
@@ -43,8 +56,12 @@ class TelegramBot:
                     text = update['message']['text']
                     
                     # Respond to the received message
-                    self.send_message(chat_id, f"You said: {text}")
-                    
+                    if text == '👍':
+                        self.like += 1
+                    if text == '👎':
+                        self.dislike += 1
+                    t = f'Total likes: {self.like}\nTotal dislikes: {self.dislike}'
+                    self.send_message(chat_id,t)
                     # Update last_update_id to prevent reprocessing the same messages
                     self.last_update_id = update['update_id'] + 1
 
@@ -55,7 +72,7 @@ class TelegramBot:
         while True:
             updates = self.get_updates()
             self.handle_updates(updates)
-            time.sleep(1)
+            time.sleep(0.1)
 
 if __name__ == '__main__':
     # Replace with your bot's token
